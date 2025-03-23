@@ -14,7 +14,7 @@ public class CustomerController : BaseApiController
     public CustomerController(ISender sender) : base(sender)
     {
     }
-
+ 
     [Authorize]
     [HttpPost("CreateCustomer")]
     public async Task<ActionResult<ApiSuccessResult<CreateCustomerResult>>> CreateCustomerAsync(CreateCustomerRequest request, CancellationToken cancellationToken)
@@ -27,7 +27,7 @@ public class CustomerController : BaseApiController
             Message = $"Success executing {nameof(CreateCustomerAsync)}",
             Content = response
         });
-    }
+    } 
 
     [Authorize]
     [HttpPost("UpdateCustomer")]
