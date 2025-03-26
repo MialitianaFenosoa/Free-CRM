@@ -119,17 +119,17 @@ public static class DI
             var unitMeasureSeeder = serviceProvider.GetRequiredService<UnitMeasureSeeder>();
             unitMeasureSeeder.GenerateDataAsync().Wait();
 
-            var productGroupSeeder = serviceProvider.GetRequiredService<ProductGroupSeeder>();
-            productGroupSeeder.GenerateDataAsync().Wait();
-
-            var productSeeder = serviceProvider.GetRequiredService<ProductSeeder>();
-            productSeeder.GenerateDataAsync().Wait();
-
-            var salesOrderSeeder = serviceProvider.GetRequiredService<SalesOrderSeeder>();
-            salesOrderSeeder.GenerateDataAsync().Wait();
-
-            var purchaseOrderSeeder = serviceProvider.GetRequiredService<PurchaseOrderSeeder>();
-            purchaseOrderSeeder.GenerateDataAsync().Wait();
+            // var productGroupSeeder = serviceProvider.GetRequiredService<ProductGroupSeeder>();
+            // productGroupSeeder.GenerateDataAsync().Wait();
+            //
+            // var productSeeder = serviceProvider.GetRequiredService<ProductSeeder>();
+            // productSeeder.GenerateDataAsync().Wait();
+            //
+            // var salesOrderSeeder = serviceProvider.GetRequiredService<SalesOrderSeeder>();
+            // salesOrderSeeder.GenerateDataAsync().Wait();
+            //
+            // var purchaseOrderSeeder = serviceProvider.GetRequiredService<PurchaseOrderSeeder>();
+            // purchaseOrderSeeder.GenerateDataAsync().Wait();
 
 
 
@@ -139,23 +139,23 @@ public static class DI
             var salesRepresentativeSeeder = serviceProvider.GetRequiredService<SalesRepresentativeSeeder>();
             salesRepresentativeSeeder.GenerateDataAsync().Wait();
 
-            var campaignSeeder = serviceProvider.GetRequiredService<CampaignSeeder>();
-            campaignSeeder.GenerateDataAsync().Wait();
-            
-            var budgetSeeder = serviceProvider.GetRequiredService<BudgetSeeder>();
-            budgetSeeder.GenerateDataAsync().Wait();
-            
-            var expenseSeeder = serviceProvider.GetRequiredService<ExpenseSeeder>();
-            expenseSeeder.GenerateDataAsync().Wait();
-            
-            var leadSeeder = serviceProvider.GetRequiredService<LeadSeeder>();
-            leadSeeder.GenerateDataAsync().Wait();
-            
-            var leadContactSeeder = serviceProvider.GetRequiredService<LeadContactSeeder>();
-            leadContactSeeder.GenerateDataAsync().Wait();
-            
-            var leadActivitySeeder = serviceProvider.GetRequiredService<LeadActivitySeeder>();
-            leadActivitySeeder.GenerateDataAsync().Wait();
+            // var campaignSeeder = serviceProvider.GetRequiredService<CampaignSeeder>();
+            // campaignSeeder.GenerateDataAsync().Wait();
+            //
+            // var budgetSeeder = serviceProvider.GetRequiredService<BudgetSeeder>();
+            // budgetSeeder.GenerateDataAsync().Wait();
+            //
+            // var expenseSeeder = serviceProvider.GetRequiredService<ExpenseSeeder>();
+            // expenseSeeder.GenerateDataAsync().Wait();
+            //
+            // var leadSeeder = serviceProvider.GetRequiredService<LeadSeeder>();
+            // leadSeeder.GenerateDataAsync().Wait();
+            //
+            // var leadContactSeeder = serviceProvider.GetRequiredService<LeadContactSeeder>();
+            // leadContactSeeder.GenerateDataAsync().Wait();
+            //
+            // var leadActivitySeeder = serviceProvider.GetRequiredService<LeadActivitySeeder>();
+            // leadActivitySeeder.GenerateDataAsync().Wait();
 
         }
         return host;

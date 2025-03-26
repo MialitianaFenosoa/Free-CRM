@@ -2,81 +2,62 @@ const App = {
     setup() {
         const state = Vue.reactive({
             isSubmitting: false,
-            selectedTable: '',
-            tables: [],
-            file: null,
-            separator: ',',
-            columnMappings: []
+            fileInputs: [{ id: Date.now(), file: null }], // Liste des inputs dynamiques
+            files: [],
+            separator: ",",
+            createdById: StorageManager.getUserId()
         });
 
-        const fetchTables = async () => {
-            try {
-                const response = await AxiosManager.get('/Csv/Entities');
-                if (typeof response.data.content.entities === 'string') {
-                    state.tables = response.data.content.entities.split(',');
-                } else {
-                    state.tables = response.data.content.entities || [];
+        const handleFileUpload = (event, inputId) => {
+            const selectedFile = event.target.files[0];
+            if (selectedFile) {
+                const inputIndex = state.fileInputs.findIndex(input => input.id === inputId);
+                if (inputIndex !== -1) {
+                    state.fileInputs[inputIndex].file = selectedFile;
                 }
-            } catch (error) {
-                console.error('Erreur lors de la récupération des tables:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    text: 'Impossible de charger la liste des tables.',
-                    confirmButtonText: 'OK'
-                });
             }
         };
 
-        const handleFileUpload = (event) => {
-            state.file = event.target.files[0];
+        const addFileInput = () => {
+            state.fileInputs.push({ id: Date.now(), file: null });
         };
 
-        const addColumn = () => {
-            state.columnMappings.push({ csvColumn: '', tableColumn: '' });
-        };
-
-        const removeColumn = (index) => {
-            state.columnMappings.splice(index, 1);
+        const removeFileInput = (inputId) => {
+            state.fileInputs = state.fileInputs.filter(input => input.id !== inputId);
         };
 
         const handleSubmit = async () => {
-            if (!state.file || !state.selectedTable ) {
+            state.files = state.fileInputs.map(input => input.file).filter(file => file !== null);
+
+            if (state.files.length === 0) {
                 Swal.fire({
-                    icon: 'warning',
-                    title: 'Champs manquants',
-                    text: 'Veuillez sélectionner un fichier, une table, un séparateur et au moins une correspondance de colonne.',
-                    confirmButtonText: 'OK'
+                    icon: "warning",
+                    title: "Missing Fields",
+                    text: "Please select at least one CSV file.",
+                    confirmButtonText: "OK"
                 });
                 return;
             }
 
-            // Convertir state.columnMappings en un dictionnaire pour correspondre à l'attente du backend
-            const columnMappingsDict = {};
-            state.columnMappings.forEach(mapping => {
-                if (mapping.csvColumn && mapping.tableColumn) {
-                    columnMappingsDict[mapping.csvColumn] = mapping.tableColumn;
-                }
-            });
-
             const formData = new FormData();
-            formData.append("file", state.file);
-            formData.append("entityName", state.selectedTable);
+            state.files.forEach(file => {
+                formData.append("files", file);
+            });
             formData.append("separator", state.separator);
-            formData.append("columnMappings", JSON.stringify(columnMappingsDict));
+            formData.append("createdById", state.createdById);
 
             try {
                 state.isSubmitting = true;
 
-                const response = await AxiosManager.post('/Csv/Import', formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
+                const response = await AxiosManager.post("/Csv/Import", formData, {
+                    headers: { "Content-Type": "multipart/form-data" }
                 });
 
                 if (response.data.code === 200) {
                     Swal.fire({
-                        icon: 'success',
-                        title: 'Import réussi',
-                        text: response.data.content?.message || 'Le fichier a été importé avec succès.',
+                        icon: "success",
+                        title: "Import Successful",
+                        text: response.data.content?.message || "Files have been imported successfully.",
                         timer: 2000,
                         showConfirmButton: false
                     });
@@ -84,35 +65,47 @@ const App = {
                     setTimeout(() => window.location.reload(), 2000);
                 } else {
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Échec de l\'import',
-                        text: response.data.message || 'Une erreur est survenue.',
-                        confirmButtonText: 'Réessayer'
+                        icon: "error",
+                        title: "Import Failed",
+                        text: response.data.message || "An error occurred.",
+                        confirmButtonText: "Retry"
                     });
                 }
             } catch (error) {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    text: error.response?.data?.message || 'Impossible de terminer l\'importation.',
-                    confirmButtonText: 'OK'
+                    icon: "error",
+                    title: "Error",
+                    text: error.response?.data?.message || "The import process could not be completed.",
+                    confirmButtonText: "OK"
                 });
             } finally {
                 state.isSubmitting = false;
             }
         };
 
-
-        fetchTables();
+        Vue.onMounted(async () => {
+            try {
+                await SecurityManager.authorizePage(["Expenses"]);
+                await SecurityManager.validateToken();
+            } catch (error) {
+                console.error("Security Error:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Access Denied",
+                    text: "You do not have permission to access this page.",
+                    confirmButtonText: "OK"
+                });
+            }
+        });
 
         return {
             state,
             handleFileUpload,
-            addColumn,
-            removeColumn,
+            addFileInput,
+            removeFileInput,
             handleSubmit
         };
     }
 };
 
-Vue.createApp(App).mount('#app');
+Vue.createApp(App).mount("#app");

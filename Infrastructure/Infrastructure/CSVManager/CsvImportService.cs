@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Application.Common.Repositories;
 using Application.Common.Services.CSVManager;
 using Domain.Common;
+using Domain.Entities;
+using Domain.Enums;
+using Infrastructure.CSVManager.dto;
 using Infrastructure.SecurityManager.AspNetIdentity;
 using Infrastructure.SecurityManager.Roles;
 using Infrastructure.SeedManager.Systems;
@@ -192,7 +195,6 @@ namespace Infrastructure.CSVManager
                 var headers = reader.ReadLine()?.Split(separator);
                 if (headers == null)
                     throw new Exception("The CSV file is empty or has no headers.");
-
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
@@ -202,7 +204,7 @@ namespace Infrastructure.CSVManager
                     for (int i = 0; i < headers.Length; i++)
                     {
                         if (i < values.Length)
-                            record[headers[i].ToLower()] = values[i]; // Insensible à la casse
+                            record[headers[i].ToLower()] = values[i]; 
                     }
 
                     if (!record.TryGetValue("rolename", out var roleName) || string.IsNullOrEmpty(roleName))
@@ -215,6 +217,12 @@ namespace Infrastructure.CSVManager
                 }
             }
         }
+        
+        
+        
+        
+        
+        
 
     }
 }

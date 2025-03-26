@@ -36,37 +36,111 @@ namespace ASPNET.BackEnd.Controllers
             });
         }
 
-        [AllowAnonymous]
+        // [AllowAnonymous]
+        // [HttpPost("Import")]
+        // public async Task<ActionResult<ApiSuccessResult<ProcessCsvResult>>> ImportCsvAsync(
+        //     [FromForm] IFormFile file,
+        //     [FromForm] string entityName,
+        //     [FromForm] string separator,
+        //     [FromForm] string columnMappings,
+        //     CancellationToken cancellationToken)
+        // {
+        //     if (file == null || file.Length == 0)
+        //     {
+        //         return BadRequest(new ApiErrorResult
+        //         {
+        //             Code = StatusCodes.Status400BadRequest,
+        //             Message = "Csv file is required."
+        //         });
+        //     }
+        //
+        //     try
+        //     {
+        //         var tempFilePath = Path.GetTempFileName();
+        //         using (var stream = new FileStream(tempFilePath, FileMode.Create))
+        //         {
+        //             await file.CopyToAsync(stream);
+        //         }
+        //
+        //         var request = new ImportCsvRequest
+        //         {
+        //             FilePath = tempFilePath,
+        //             EntityName = entityName,
+        //             Separator = separator,
+        //         };
+        //
+        //         var response = await _sender.Send(request, cancellationToken);
+        //
+        //         if (response.Message.StartsWith("Error", StringComparison.OrdinalIgnoreCase))
+        //         {
+        //             return StatusCode(StatusCodes.Status400BadRequest, new ApiErrorResult
+        //             {
+        //                 Code = StatusCodes.Status400BadRequest,
+        //                 Message = response.Message
+        //             });
+        //         }
+        //
+        //         return Ok(new ApiSuccessResult<ProcessCsvResult>
+        //         {
+        //             Code = StatusCodes.Status200OK,
+        //             Message = "Import Successful",
+        //             Content = response
+        //         });
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(StatusCodes.Status500InternalServerError, new ApiErrorResult
+        //         {
+        //             Code = StatusCodes.Status500InternalServerError,
+        //             Message = $"Error while importing the CSV: {ex.Message}"
+        //         });
+        //     }
+        // }
+
+        
+        [Authorize]
         [HttpPost("Import")]
-        public async Task<ActionResult<ApiSuccessResult<ImportCsvResult>>> ImportCsvAsync(
-            [FromForm] IFormFile file,
-            [FromForm] string entityName,
-            [FromForm] string separator,
-            [FromForm] string columnMappings,
+        public async Task<ActionResult<ApiSuccessResult<ProcessCsvResult>>> ImportCsvAsync(
+            [FromForm] List<IFormFile> files,  
+            [FromForm] string separator,  
+            [FromForm] string createdById,  
             CancellationToken cancellationToken)
         {
-            if (file == null || file.Length == 0)
+            if (files == null || files.Count == 0)
             {
                 return BadRequest(new ApiErrorResult
                 {
                     Code = StatusCodes.Status400BadRequest,
-                    Message = "Csv file is required."
+                    Message = "At least one CSV file is required."
                 });
             }
 
             try
             {
-                var tempFilePath = Path.GetTempFileName();
-                using (var stream = new FileStream(tempFilePath, FileMode.Create))
+                List<string> tempFilePaths = new(); // Temp paths
+                List<string> originalFileNames = new(); // Original file names
+
+                foreach (var file in files)
                 {
-                    await file.CopyToAsync(stream);
+                    var tempFilePath = Path.GetTempFileName();
+                    
+                    // Enregistrer le fichier temporaire
+                    using (var stream = new FileStream(tempFilePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+                    
+                    // Ajouter le chemin temporaire et le nom original
+                    tempFilePaths.Add(tempFilePath);
+                    originalFileNames.Add(file.FileName); // Récupération du nom original
                 }
 
-                var request = new ImportCsvRequest
+                var request = new ProcessCsvRequest
                 {
-                    FilePath = tempFilePath,
-                    EntityName = entityName,
+                    FilePath = tempFilePaths,
                     Separator = separator,
+                    CreatedById = createdById,
+                    OriginalFileNames = originalFileNames // Transmettre les noms originaux
                 };
 
                 var response = await _sender.Send(request, cancellationToken);
@@ -80,7 +154,7 @@ namespace ASPNET.BackEnd.Controllers
                     });
                 }
 
-                return Ok(new ApiSuccessResult<ImportCsvResult>
+                return Ok(new ApiSuccessResult<ProcessCsvResult>
                 {
                     Code = StatusCodes.Status200OK,
                     Message = "Import Successful",
@@ -96,6 +170,7 @@ namespace ASPNET.BackEnd.Controllers
                 });
             }
         }
+
 
 
         [AllowAnonymous]

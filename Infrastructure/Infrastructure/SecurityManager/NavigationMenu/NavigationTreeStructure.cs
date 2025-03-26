@@ -4,10 +4,6 @@ using System.Text.Json;
 namespace Infrastructure.SecurityManager.NavigationMenu;
 
 
-
-
-
-
 public class JsonStructureItem
 {
     public string? URL { get; set; }
@@ -249,6 +245,18 @@ public static class NavigationTreeStructure
                 {
                     "URL": "/NumberSequences/NumberSequenceList",
                     "Name": "Number Sequence",
+                    "IsModule": false
+                }
+            ]
+        },
+        {
+            "URL": "#",
+            "Name": "Configurations",
+            "IsModule": true,
+            "Children": [
+                {
+                    "URL": "/Csv/CsvForm",
+                    "Name": "Import Csv",
                     "IsModule": false
                 }
             ]
